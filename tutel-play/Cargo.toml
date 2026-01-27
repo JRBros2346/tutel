@@ -1,0 +1,8 @@
+[package]
+name = "tutel-play"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tutel-core = { version = "0.1.0", path = "../tutel-core" }
+tutel-formats = { version="0.1.0", path = "../tutel-formats" }

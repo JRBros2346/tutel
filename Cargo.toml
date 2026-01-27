@@ -1,0 +1,10 @@
+[package]
+name = "tutel"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tutel-core = { path = "tutel-core" }
+
+[workspace]
+members = ["tutel-codecs","tutel-core", "tutel-formats", "tutel-play"]
