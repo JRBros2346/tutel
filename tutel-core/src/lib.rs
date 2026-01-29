@@ -15,4 +15,5 @@ pub use packet::Packet;
 pub use stream::{Stream, StreamKind};
 pub use time::{TimeBase, Timestamp};
 
+pub use bytes::Bytes;
 pub use traits::*;

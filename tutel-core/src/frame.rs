@@ -34,8 +34,7 @@ pub enum FrameData {
 
 #[derive(Debug, Clone)]
 pub struct Frame {
-    pub pts: Timestamp,
-    pub dts: Option<Timestamp>,
-    pub stream_id: u32,
+    pub pts: Option<Timestamp>,
+    pub stream_id: usize,
     pub data: FrameData,
 }

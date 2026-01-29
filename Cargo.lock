@@ -60,6 +60,9 @@ dependencies = [
 [[package]]
 name = "tutel"
 version = "0.1.0"
+dependencies = [
+ "tutel-core",
+]
 
 [[package]]
 name = "tutel-core"
