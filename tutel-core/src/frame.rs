@@ -1,29 +1,12 @@
-use crate::{AudioFormat, SubtitleFormat, Timestamp, VideoFormat};
+use crate::Timestamp;
 
-use bytes::Bytes;
+pub mod audio;
+pub mod subtitle;
+pub mod video;
 
-#[derive(Debug, Clone)]
-pub struct AudioFrame {
-    pub sample_rate: u32,
-    pub channels: u16,
-    pub format: AudioFormat,
-    pub samples: Vec<Bytes>,
-}
-
-#[derive(Debug, Clone)]
-pub struct SubtitleFrame {
-    pub format: SubtitleFormat,
-    pub data: Bytes,
-}
-
-#[derive(Debug, Clone)]
-pub struct VideoFrame {
-    pub width: u32,
-    pub height: u32,
-    pub format: VideoFormat,
-    pub keyframe: bool,
-    pub data: Vec<Bytes>,
-}
+pub use audio::AudioFrame;
+pub use subtitle::SubtitleFrame;
+pub use video::VideoFrame;
 
 #[derive(Debug, Clone)]
 pub enum FrameData {
@@ -34,7 +17,7 @@ pub enum FrameData {
 
 #[derive(Debug, Clone)]
 pub struct Frame {
-    pub pts: Option<Timestamp>,
     pub stream_id: usize,
+    pub pts: Option<Timestamp>,
     pub data: FrameData,
 }

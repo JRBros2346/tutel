@@ -5,8 +5,9 @@ use bytes::Bytes;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum StreamKind {
     Audio,
-    Video,
+    Data,
     Subtitle,
+    Video,
 }
 
 #[derive(Debug, Clone)]
@@ -17,4 +18,16 @@ pub struct Stream {
     pub kind: StreamKind,
     pub codec: Codec,
     pub extradata: Option<Bytes>,
+}
+
+pub struct Attachment {
+    pub id: u32,
+    pub name: Option<String>,
+    pub mime_type: Option<String>,
+    pub data: Bytes,
+}
+
+pub struct ContainerInfo {
+    pub streams: Vec<Stream>,
+    pub attachments: Vec<Attachment>,
 }
