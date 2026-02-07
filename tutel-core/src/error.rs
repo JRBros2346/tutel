@@ -1,38 +1,23 @@
 use std::io;
-use thiserror::Error;
 
-#[derive(Debug, Error)]
-pub enum CodecError {
-    #[error("unsupported codec")]
-    Unsupported,
-    #[error("invalid codec data")]
-    InvalidData,
-    #[error("decoder initialization failed")]
-    InitFailed,
-    #[error("{0}")]
-    Other(String),
-}
-
-#[derive(Debug, Error)]
-pub enum FormatError {
-    #[error("unsupported container format")]
-    Unsupported,
-    #[error("invalid or corrupted container")]
-    InvalidData,
-    #[error("missing required stream")]
-    MissingStream,
-    #[error("{0}")]
-    Other(String),
-}
-
-#[derive(Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("I/O error: {0}")]
-    Io(#[from] io::Error),
-    #[error("codec error: {0}")]
-    Codec(#[from] CodecError),
-    #[error("format error: {0}")]
-    Format(#[from] FormatError),
-    #[error("internal error: {0}")]
-    Internal(String),
+    #[error("IO error: {0}")]
+    Io(io::Error),
+    #[error("Invalid format")]
+    InvalidFormat,
+    #[error("Invalid codec")]
+    InvalidCodec,
+    #[error("Unsupported operation")]
+    UnsupportedOperation,
+    #[error("Decode error: {0}")]
+    DecodeError(String),
+    #[error("Encode error: {0}")]
+    EncodeError(String),
+    #[error("End of stream")]
+    EndOfStream,
+    #[error("Custom error: {0}")]
+    Custom(#[source] Box<dyn std::error::Error + Send + Sync>),
 }
+
+pub type Result<T> = std::result::Result<T, Error>;
