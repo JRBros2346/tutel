@@ -1,5 +1,3 @@
-use std::io::{Read, Write};
-
 pub mod codec;
 pub mod container;
 pub mod error;
@@ -8,51 +6,39 @@ pub mod packet;
 pub mod time;
 
 pub use bytes::Bytes;
-pub use codec::Codec;
+pub use codec::CodecId;
 pub use container::{Attachment, ContainerInfo, Stream, StreamKind};
-pub use error::Error;
+pub use error::{Error, Result};
 pub use frame::Frame;
 pub use packet::Packet;
 pub use time::{TimeBase, Timestamp};
 
-pub trait Demuxer {
-    fn container_info(&self) -> &ContainerInfo;
-    fn read_packet(&mut self) -> Result<Option<Packet>, Error>;
+pub trait Demuxer: Send + Sync {
+    fn probe(&self, peek: &[u8]) -> u8;
+    fn open(&self, input: ()) -> Result<Box<dyn DemuxSession>>;
 }
 
-pub trait DemuxerFactory {
-    fn probe(data: &[u8]) -> bool;
-    fn open(input: Box<dyn Read>) -> Result<Box<dyn Demuxer>, Error>;
+pub trait DemuxSession {
+    fn container_info(&self) -> &ContainerInfo;
+    fn read_packet(&mut self) -> Result<Option<Packet>>;
 }
 
 pub trait Muxer {
-    fn requires_seek() -> bool
-    where
-        Self: Sized;
-    fn write(&mut self, packet: Packet) -> Result<(), Error>;
-    fn finalize(&mut self) -> Result<(), Error>;
-}
-
-pub trait MuxerFactory {
-    fn format_name(&self) -> &'static str;
-    fn open(
-        &self,
-        output: Box<dyn Write>,
-        container_info: &ContainerInfo,
-    ) -> Result<Box<dyn Muxer>, Error>;
+    fn write(&mut self, packet: Packet) -> Result<()>;
+    fn finalize(&mut self) -> Result<()>;
 }
 
 pub trait Decoder {
-    fn decode(&mut self, pkt: Packet) -> Result<Vec<Frame>, Error>;
-    fn flush(&mut self) -> Result<Vec<Frame>, Error>;
+    fn decode(&mut self, pkt: Packet) -> Result<Vec<Frame>>;
+    fn flush(&mut self) -> Result<Vec<Frame>>;
 }
 
 pub trait Encoder {
-    fn encode(&mut self, frame: Frame) -> Result<Vec<Packet>, Error>;
-    fn flush(&mut self) -> Result<Vec<Packet>, Error>;
+    fn encode(&mut self, frame: Frame) -> Result<Vec<Packet>>;
+    fn flush(&mut self) -> Result<Vec<Packet>>;
 }
 
 pub trait Transform {
-    fn apply(&mut self, frame: Frame) -> Result<Frame, Error>;
+    fn apply(&mut self, frame: Frame) -> Result<Frame>;
     fn name(&self) -> &'static str;
 }

@@ -1,4 +1,4 @@
-use crate::{Codec, TimeBase};
+use crate::{CodecId, TimeBase};
 
 use bytes::Bytes;
 
@@ -16,7 +16,7 @@ pub struct Stream {
     pub index: usize,
     pub time_base: TimeBase,
     pub kind: StreamKind,
-    pub codec: Codec,
+    pub codec: CodecId,
     pub extradata: Option<Bytes>,
 }
 

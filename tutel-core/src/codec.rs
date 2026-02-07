@@ -5,6 +5,8 @@ use std::fmt;
 pub struct CodecId(u32);
 
 impl CodecId {
+    /// # Safety
+    /// The bytes must be valid ASCII characters.
     pub const unsafe fn from_bytes_unchecked(bytes: [u8; 4]) -> Self {
         Self(u32::from_be_bytes(bytes))
     }
@@ -22,7 +24,15 @@ impl std::str::FromStr for CodecId {
             .try_into()
             .map_err(|_| CodecIdError::InvalidLength)?;
 
-        Ok(bytes.try_into()?)
+        Self::try_from(bytes)
+    }
+}
+
+impl TryFrom<&str> for CodecId {
+    type Error = CodecIdError;
+
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        s.parse()
     }
 }
 
@@ -30,8 +40,8 @@ impl TryFrom<[u8; 4]> for CodecId {
     type Error = CodecIdError;
 
     fn try_from(bytes: [u8; 4]) -> Result<Self, Self::Error> {
-        if !bytes.iter().all(|b| b.is_ascii() && !b.is_ascii_control()) {
-            return Err(CodecIdError::InvalidAsciiBytes);
+        if !bytes.iter().all(|b| b.is_ascii_graphic()) {
+            return Err(CodecIdError::NonPrintableAscii);
         }
         Ok(Self(u32::from_be_bytes(bytes)))
     }
@@ -40,10 +50,10 @@ impl TryFrom<[u8; 4]> for CodecId {
 impl fmt::Debug for CodecId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let bytes = self.as_bytes();
-        if let Ok(s) = std::str::from_utf8(&bytes) {
-            if s.chars().all(|c| !c.is_control()) {
-                return write!(f, "\"{s}\"");
-            }
+        if let Ok(s) = std::str::from_utf8(&bytes)
+            && s.chars().all(|c| !c.is_control())
+        {
+            return write!(f, "\"{s}\"");
         }
         write!(f, "{bytes:?}")
     }
@@ -52,10 +62,10 @@ impl fmt::Debug for CodecId {
 impl fmt::Display for CodecId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let bytes = self.as_bytes();
-        if let Ok(s) = std::str::from_utf8(&bytes) {
-            if s.chars().all(|c| !c.is_control()) {
-                return write!(f, "{s}");
-            }
+        if let Ok(s) = std::str::from_utf8(&bytes)
+            && s.chars().all(|c| !c.is_control())
+        {
+            return write!(f, "{s}");
         }
         write!(
             f,
@@ -70,5 +80,5 @@ pub enum CodecIdError {
     #[error("codec id must be exactly 4 bytes")]
     InvalidLength,
     #[error("codec id must contain printable ASCII characters")]
-    InvalidAsciiBytes,
+    NonPrintableAscii,
 }
